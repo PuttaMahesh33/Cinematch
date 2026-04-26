@@ -10,7 +10,11 @@ A movie recommendation system built using **Python, Machine Learning, and Stream
 ---
 
 ## 📸 Preview
-![App Screenshot](Screenshot.png)
+
+<p align="center">
+  <img src="screenshot1.png" width="400"/>
+  <img src="screenshot2.png" width="400"/>
+</p>
 
 ---
 
@@ -23,8 +27,8 @@ A movie recommendation system built using **Python, Machine Learning, and Stream
 ---
 
 ## 🧠 How it works
-This project uses **cosine similarity** on movie metadata (like genres, keywords, etc.)  
-to find and recommend movies that are most similar to the selected one.
+This project uses **cosine similarity** on movie metadata (such as genres, keywords, cast, etc.)  
+to recommend movies that are most similar to the selected one.
 
 ---
 
