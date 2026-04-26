@@ -12,7 +12,7 @@ v3 Fixes:
 """
 
 import streamlit as st
-import joblib
+from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import requests
 import os
@@ -28,19 +28,30 @@ st.set_page_config(
 )
 
 # ── DATA LOADING ──────────────────────────────────────────────────────────────
-@st.cache_resource(show_spinner=False)
-def load_similarity():
-    return joblib.load("similarity.joblib")
-
 @st.cache_data(show_spinner=False)
 def load_dataset() -> pd.DataFrame:
     df = pd.read_csv("movie_dataset.csv")
     df.columns = [c.strip().lower() for c in df.columns]
+    # Build a 'tags' column from overview + genre for similarity computation
+    df['tags'] = (df.get('overview', pd.Series([''] * len(df))).fillna('') + ' ' +
+                  df.get('genre', pd.Series([''] * len(df))).fillna('')).str.lower()
     return df
 
-simi_df    = load_similarity()
+@st.cache_resource(show_spinner=False)
+def load_similarity(_movies):
+    from sklearn.feature_extraction.text import CountVectorizer
+
+    cv = CountVectorizer(max_features=5000, stop_words='english')
+    vectors = cv.fit_transform(_movies['tags']).toarray()
+
+    similarity = cosine_similarity(vectors)
+    # Wrap as DataFrame so the rest of the app can use .index / column access
+    return pd.DataFrame(similarity, index=_movies['title'], columns=_movies['title'])
+
+movies     = load_dataset()
+simi_df    = load_similarity(movies)
 ALL_MOVIES: List[str] = list(simi_df.index)
-df_meta    = load_dataset()
+df_meta    = movies
 
 @st.cache_data(show_spinner=False)
 def build_meta_lookup(_df: pd.DataFrame) -> dict:
